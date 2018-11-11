@@ -22,17 +22,25 @@ function bnmng_above_and_below( $content ) {
 
 	$post = get_post();
 
+	if( is_singular() ) {
+		bnmng_echo ( "singular");
+	}
+	if( is_archive() ) {
+		bnmng_echo ( "archive");
+	}
+	if( in_the_loop() ) {
+		bnmng_echo ( "in the loop" );
+	}
+
 	$option_name = 'bnmng_above_and_below';
 	$options = get_option( $option_name );
 	$add_to_beginning = '';
 	$add_to_end = '';
 	$qty_instances = count( $options['instances'] );
 	for ( $each_instance = 0; $each_instance < $qty_instances; $each_instance++ ) {
-		if ( $options['instances'][ $each_instance ]['singular'] && ! is_singular() ) {
+		if ( $options['instances'][ $each_instance ]['singular'] == 1 && ! is_singular() ) {
 			continue;
-		}
-
-		if ( $options['instances'][ $each_instance ]['singular'] && ! is_singular() ) {
+		} elseif ( $options['instances'][ $each_instance ]['singular'] == 2 && is_singular() ) {
 			continue;
 		}
 
@@ -105,8 +113,14 @@ function bnmng_above_and_below_options() {
 	$post_type_label = 'Post Type';
 	$post_type_help = 'To add a new instance, select the appropriate post type and click "Save Changes"  ';
 	$post_type_help .= 'This plugin should work as expected for posts and pages, and may work for some types of posts that you add. ';
-	$singular_label = 'Singular View Only';
-	$singular_help = 'If checked, only add text to single-post views.  Otherwise, add to single-posts and lists';
+	$singular_label = 'Singular/List View';
+	$singular_help = 'Whether to display the added text while the post is in singular view only, list view only, or either.  ';
+	$singular_help .= 'This option won\'t be relavant for all post types.  ';
+	$singular_options = [
+		['value' => '1', 'name' => 'Single Only'],
+		['value' => '2', 'name' => 'List Only'],
+		['value' => '0', 'name' => 'Single or List'],
+	];
 	$taxonomies_label = '%1$s';
 	$taxonomies_help = 'The %1$s of posts to have the text added.  If more than one is selected, text will be added <em>only</em> to posts of <em>all</em> selected %1$s.';
 	$author_label = 'Author';
@@ -182,7 +196,7 @@ function bnmng_above_and_below_options() {
 				if ( post_type_supports( $new_instance_post_type, 'author' ) ) {
 					$options['instances'][ $each_instance + $swaps[ $each_instance ] ]['author'] = 0;
 				}
-				$options['instances'][ $each_instance + $swaps[ $each_instance ] ]['singular'] = 'Checked';
+				$options['instances'][ $each_instance + $swaps[ $each_instance ] ]['singular'] = '1';
 				$options['instances'][ $each_instance + $swaps[ $each_instance ] ]['at_beginning'] = '';
 				$options['instances'][ $each_instance + $swaps[ $each_instance ] ]['at_end'] = '';
 			}
@@ -190,8 +204,6 @@ function bnmng_above_and_below_options() {
 		update_option( $option_name,  $options );
 	}
 	$options = get_option( $option_name );
-
-	$post_types_size = min( count( $available_post_types ), 3 );
 
 	$qty_instances = count( $options['instances'] ) ;
 
@@ -269,11 +281,15 @@ function bnmng_above_and_below_options() {
 		echo '          <th>', $singular_label, '</th>', "\n";
 		echo '          <td>', "\n";
 		echo '            <div>', "\n";
-		echo '              <input type="checkbox" id="', sprintf( $controlid_pat, $each_instance, 'singular' ),  '" name="', sprintf( $controlname_pat, $each_instance, 'singular' ), '"';
-		if ( $options['instances'][ $each_instance ]['singular'] ) {
-			echo '    checked="true"';
+		echo '              <select id="', sprintf( $controlid_pat, $each_instance, 'singular' ),  '" name="', sprintf( $controlname_pat, $each_instance, 'singular' ), '">', "\n";
+		foreach( $singular_options AS $singular_option ) {
+			echo '                <option value="' . $singular_option['value'] . '"';
+			if( $singular_option['value']  == $options['instances'][ $each_instance ]['singular'] ) {
+				echo ' selected="selected" ';
+			}
+			echo ' >', $singular_option['name'], '</option>', "\n";
 		}
-		echo '    >', "\n";
+		echo '              </select>', "\n";
 		echo '            </div>', "\n";
 		echo '            <div class="', $text_domain, '-help">', $singular_help, '</div>', "\n";
 		echo '          </td>', "\n";
@@ -291,7 +307,7 @@ function bnmng_above_and_below_options() {
 				echo '          <th>', $taxonomy->label, '</th>', "\n";
 				echo '          <td>', "\n";
 				echo '            <div>', "\n";
-				echo '              <select>', "\n";
+				echo '              <select multiple="multiple" size="',  min( count( $terms[ $taxonomy->name ] ), 3 ),  '">', "\n";
 				foreach ( $terms[ $taxonomy->name ] as $term ) {
 					echo '                <option value="', $term->term_id , '">', $term->prefix . $term->name, '</option>', "\n";;
 				}
@@ -307,7 +323,7 @@ function bnmng_above_and_below_options() {
 		echo '          <th>', $author_label, '</th>', "\n";
 		echo '          <td>', "\n";
 		echo '            <div>', "\n";
-		echo '              <select id="', sprintf( $controlid_pat, $each_instance, 'author' ), '" name="', sprintf( $controlname_pat, $each_instance, 'author' ), '" size="3" >', "\n";
+		echo '              <select id="', sprintf( $controlid_pat, $each_instance, 'author' ), '" name="', sprintf( $controlname_pat, $each_instance, 'author' ), '" >', "\n";
 		echo '                <option value="0"';
 		if ( 0 == $options['instances'][ $each_instance ]['author'] ) {
 			echo ' selected="selected" ';
