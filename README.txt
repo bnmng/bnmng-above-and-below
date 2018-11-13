@@ -1,4 +1,4 @@
-=== Akismet Anti-Spam ===
+=== Above and Below  ===
 Contributors: bnmng
 Tags: text, content, 
 Requires at least: 4.0
@@ -10,10 +10,10 @@ Above and Below allows you to add content to be displayed above and below post c
 
 == Description ==
 
-Above and Below is a plugin for WordPress that you can use to add text - including HTML and shortcode- to the beginning and end of posts' content at display time.  
+Above and Below is a plugin for WordPress that you can use to add text - including HTML, javascript, and shortcode - to the beginning and end of post content at display time.  
 The content is not altered in the database.  
 
-You can have different text for different posts. You can select posts to have text added by type, author, or taxonomy (ie category)
+You can have different text for different selections of posts. You can select posts to have text added by type, author, or taxonomy (ie category)
 
 You can also select pages and custom post types, although not all custom post types will work.
 
@@ -32,7 +32,10 @@ Normally, "post" is what you want to add.  "other" is explained in more detail b
 
 Once you have selected a post type, click "Save Changes".  A new form will appear for the new instance you just created. 
 
-Fill out the criterea for selecting the posts to which you want to add text.  Also c
+=== Edit the Instance
+
+Fill out the criterea for selecting the posts (or pages, custom post types, etc ) to which you want to add text.  Then enter the text.  The text can be plain text, html,
+or shortcode, or any combination.  
 
 == Changelog ==
 
