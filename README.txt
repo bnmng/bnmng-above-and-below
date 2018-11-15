@@ -21,7 +21,11 @@ You can also select pages and custom post types, although not all custom post ty
 
 Upload the plugin directory to your blog and activate it using your plugins menu
 
-== Help ==
+== Help ==a
+
+=== Go to the Options Menu ===
+
+The options for Above and Below will appear in the Settings section of the admin page.
 
 === Create a New Instance ===
 
@@ -32,7 +36,7 @@ Normally, "post" is what you want to add.  "other" is explained in more detail b
 
 Once you have selected a post type, click "Save Changes".  A new form will appear for the new instance you just created. 
 
-=== Edit the Instance
+=== Edit the Instance ===
 
 Fill out the criterea for selecting the posts (or pages, custom post types, etc ) to which you want to add text.  Then enter the text.  The text can be plain text, html,
 or shortcode, or any combination.  

@@ -38,30 +38,17 @@ function bnmng_above_and_below( $content ) {
 			continue;
 		}
 
-		//If the taxonomy isn't in get_post_taxonomies, proceed (not "continue") //this is handled authomatically by the foreach loop
-		//If the taxonomy is in get_post_taxonomies, but nothing from that taxonomy is in options for that taxonomy, proceed
-		//If there are options for that taxonomy,
-		//   If there are option terms, then every option term selected has to be in post terms so
-		//	 for each option term
-		//      if it's not in post terms, continue (break out)
-		//
-
 		$taxonomy_names = get_post_taxonomies( $post );
 		foreach ( $taxonomy_names as $taxonomy_name ) {
-			bnmng_echo( 'checking taxonomy ' . $taxonomy_name );
 			$opt_term_ids = $options['instances'][ $each_instance ]['taxonomies'][ $taxonomy_name ];
 			if ( count( $opt_term_ids ) ) {
-				bnmng_echo( 'checking there are terms ' );
 				$post_terms = get_the_terms( $post, $taxonomy_name );
 				if ( ! count( $post_terms ) ) {
-					bnmng_echo( 'but there are no post terms for taxonomy ' . $taxonomy_name );
 					continue;
 				} else {
 					$post_term_ids = array_column( $post_terms, 'term_id' );
 					foreach ( $opt_term_ids as $opt_term_id ) {
-						bnmng_echo( 'checking if opt_term ' . $opt_term_id . ' is in post_term ids: ' . print_r( $post_terms_ids, true ) );
 						if ( ! in_array( $opt_term_id, $post_term_ids ) ) {
-							bnmng_echo( 'it is not, so continuing' );
 							continue 3;
 						}
 					}
@@ -89,14 +76,12 @@ function bnmng_above_and_below( $content ) {
 	return $content;
 }
 
-
 add_filter( 'the_content', 'bnmng_above_and_below' );
 
 function bnmng_above_and_below_menu() {
 		add_options_page( 'Above and Below Options', 'Above and Below', 'manage_options', 'bnmng-above-and-below', 'bnmng_above_and_below_options' );
 }
 add_action( 'admin_menu', 'bnmng_above_and_below_menu' );
-
 
 /*
  * Displays options for adding text above and below post content
@@ -189,7 +174,6 @@ function bnmng_above_and_below_options() {
 				if ( ! in_array( $options['instances'][ $each_instance + $swaps[ $each_instance ] ]['post_type'], $available_post_types ) ) {
 					$available_post_types[] = $options['instances'][ $each_instance + $swaps[ $each_instance ] ]['post_type'];
 				}
-				bnmng_echo ( print_r( $_POST[ $option_name ]['instances'][ $each_post_instance ]['taxonomies'], true ) );
 				$options['instances'][ $each_instance + $swaps[ $each_instance ] ]['taxonomies'] = $_POST[ $option_name ]['instances'][ $each_post_instance ]['taxonomies'];
 				$options['instances'][ $each_instance + $swaps[ $each_instance ] ]['author'] = $_POST[ $option_name ]['instances'][ $each_post_instance ]['author'];
 				$options['instances'][ $each_instance + $swaps[ $each_instance ] ]['singular'] = $_POST[ $option_name ]['instances'][ $each_post_instance ]['singular'];
@@ -233,18 +217,16 @@ function bnmng_above_and_below_options() {
 	}
 
 	for ( $each_instance = 0; $each_instance < $qty_instances; $each_instance++ ) {
-
 		echo '    <div id="div_instance_', $each_instance, '">', "\n";
 		echo '      <table class="form-table bnmng-above-and-below">', "\n";
 		echo '        <tr>', "\n";
 		echo '          <th colspan="2">', sprintf( $instance_label, ( $each_instance + 1 ) ), '</th>', "\n";
 		echo '        </tr>', "\n";
+
 		echo '        <tr>', "\n";
 		echo '          <th>', $move_label, '</th>', "\n";
 		echo '          <td>', "\n";
-
 		echo '            <table class="form-table bnmng-above-and-below">', "\n";
-
 		echo '               <tr>', "\n";
 		echo '                 <td>none</td>', "\n";
 		echo '                 <td>', "\n";
@@ -376,6 +358,7 @@ function bnmng_above_and_below_options() {
 		echo '            <div class="bnmng-above-and-below-help">', $above_help, '</div>', "\n";
 		echo '          </td>', "\n";
 		echo '        </tr>', "\n";
+
 		echo '        <tr>', "\n";
 		echo '          <th>', $below_label, '</th>', "\n";
 		echo '          <td>', "\n";
@@ -452,7 +435,7 @@ function bnmng_above_and_below_options() {
 	echo '      </table>', "\n";
 	echo '    </div>', "\n";
 
-	echo '    <div id="submit">', "\n";
+	echo '    <div id="div_submit">', "\n";
 	echo '      ', get_submit_button(), "\n";
 	echo '    </div>', "\n";
 	echo '  </form>', "\n";
@@ -486,7 +469,7 @@ add_action( 'admin_footer-settings_page_bnmng-above-and-below', 'bnmng_admin_abo
 function bnmng_admin_above_and_below_script() {
 	?>
 <script type="text/javascript">
-	document.getElementById( "bnmng_above_and_below_new_post_type").addEventListener("keydown", function() {
+	document.getElementById( "bnmng_above_and_below_new_post_type").addEventListener( "keydown", function() {
 		if ( document.getElementById( "bnmng_above_and_below_new_post_type" ).value > "" ) {
 			document.getElementById( "bnmng_above_and_below_new_instance_post_type_new" ).checked=true;
 		}
@@ -498,6 +481,11 @@ function bnmng_admin_above_and_below_script() {
 /*
  * Order terms of a taxonomy by lineage and assign a prefix field
  * of dashes ( or other characters if chosen ) to provide indentation.
+
+ * @param array $terms The terms including in the taxonomy
+ *
+ * @param string $placeholder the string to be used to build the prefix, which
+ * can be used to indent the name of the term under the name of its parent
 */
 if ( ! function_exists( 'bnmng_assign_taxonomy_lineage' ) ) {
 function bnmng_assign_taxonomy_lineage( $terms, $placeholder = '-') {
@@ -552,11 +540,11 @@ function bnmng_assign_taxonomy_lineage( $terms, $placeholder = '-') {
 
 /*This is just for troubleshooting*/
 if ( ! function_exists( 'bnmng_echo' ) ) {
-function bnmng_echo ( $verb, $line='' ) {
+function bnmng_echo ( $output, $line='' ) {
 	echo '<pre>';
 	if ( $line > '' ) {
-		echo $line;
+		echo $line, ': ';
 	}
-	echo $verb,  "\n", '</pre>';
+	echo $output,  "\n", '</pre>';
 }
 }
