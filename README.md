@@ -1,4 +1,4 @@
-=== Akismet Anti-Spam ===
+=== Above and Below ===
 Contributors: bnmng
 Tags: text, content, 
 Requires at least: 4.0
