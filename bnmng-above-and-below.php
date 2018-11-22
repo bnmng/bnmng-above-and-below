@@ -96,7 +96,6 @@ function bnmng_above_and_below_options() {
 
 }
 
-	
 function bnmng_above_and_below_save_options() {
 
 	if ( ! current_user_can( 'manage_options' ) ) {
@@ -173,7 +172,6 @@ function bnmng_above_and_below_save_options() {
 				$options['instances'][ $save_instances_lap ]['at_end'] = '';
 			}
 		}
-		bnmng_echo (__line__, $options ); 
 		update_option( $option_name . '_' . wp_get_current_user()->user_login, $options );
 		update_option( $option_name,  $options );
 	}
