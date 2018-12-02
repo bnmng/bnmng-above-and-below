@@ -87,7 +87,6 @@ add_action( 'admin_menu', 'bnmng_above_and_below_menu' );
 
 /**
  * Calls the functions to save and display options
- *
  */
 function bnmng_above_and_below_options() {
 
@@ -96,33 +95,34 @@ function bnmng_above_and_below_options() {
 
 }
 
+/**
+ * Saves options if changes were submitted
+ */
 function bnmng_above_and_below_save_options() {
 
 	if ( ! current_user_can( 'manage_options' ) ) {
-		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
+		wp_die( esc_html__( 'You do not have sufficient permissions to access this page.' ) );
 	}
 
 	$option_name = 'bnmng_above_and_below';
 	$taxonomies  = array();
 	$all_authors = get_users();
 
-	bnmng_echo ( $_POST );
-
 	if ( ! empty( $_POST ) && check_admin_referer( 'bnmng_above_and_below', 'bnmng_above_and_below_nonce' ) ) {
 		$options = [];
 		$save_instances_lap = 0;
 
-		foreach( $_POST[ $option_name ]['instances'] as &$posted_instance ) {
+		foreach ( $_POST[ $option_name ]['instances'] as &$posted_instance ) {
 
 			$posted_post_type = sanitize_key( wp_unslash( $posted_instance['post_type'] ) );
-			if( $posted_instance['post_type'] === $posted_post_type ) {
+			if ( $posted_instance['post_type'] === $posted_post_type ) {
 
 				$options['instances'][ $save_instances_lap ]['post_type'] = $posted_post_type;
 
 				if ( isset( $posted_instance['taxonomies'] ) ) {
 					foreach ( $posted_instance['taxonomies'] as $posted_taxonomy_key => $posted_taxonomy_values ) {
 						$sanitized_taxonomy_key = sanitize_key( $posted_taxonomy_key );
-						foreach( $posted_taxonomy_values as $term ) {
+						foreach ( $posted_taxonomy_values as $term ) {
 							$options['instances'][ $save_instances_lap ]['taxonomies'][ $sanitized_taxonomy_key ][] = intval( $term );
 						}
 					}
@@ -137,7 +137,7 @@ function bnmng_above_and_below_save_options() {
 				}
 
 				if ( isset( $posted_instance['at_beginning'] ) ) {
-					$options['instances'][ $save_instances_lap ]['at_beginning'] = wp_kses_post( $posted_instance['at_beginning'] ); 
+					$options['instances'][ $save_instances_lap ]['at_beginning'] = wp_kses_post( $posted_instance['at_beginning'] );
 				}
 
 				if ( isset( $posted_instance['at_end'] ) ) {
@@ -145,7 +145,7 @@ function bnmng_above_and_below_save_options() {
 				}
 
 				if ( isset( $posted_instance['wpautop'] ) && $posted_instance['wpautop'] ) {
-					$options['instances'][ $save_instances_lap ]['wpautop'] = "on";
+					$options['instances'][ $save_instances_lap ]['wpautop'] = 'on';
 				}
 
 				$save_instances_lap++;
@@ -156,34 +156,36 @@ function bnmng_above_and_below_save_options() {
 
 			$new_instance_post_type = '';
 			if ( '+' === $_POST[ $option_name ]['new_instance_post_type'] ) {
-				if( isset( $_POST[ $option_name ]['new_post_type'] ) && $_POST[ $option_name ]['new_post_type'] > '' ) {
-					$new_instance_post_type = sanitize_key( $_POST[ $option_name ]['new_post_type'] );
+				if ( isset( $_POST[ $option_name ]['new_post_type'] ) && $_POST[ $option_name ]['new_post_type'] > '' ) {
+					$new_instance_post_type = sanitize_key( wp_unslash( $_POST[ $option_name ]['new_post_type'] ) );
 				}
 			} else {
-				$new_instance_post_type = sanitize_key( $_POST[ $option_name ]['new_instance_post_type'] );
+				$new_instance_post_type = sanitize_key( sanitize_key( $_POST[ $option_name ]['new_instance_post_type'] ) );
 			}
 			if ( $new_instance_post_type > '' ) {
-				$options['instances'][ $save_instances_lap ]['post_type']=$new_instance_post_type;
+				$options['instances'][ $save_instances_lap ]['post_type'] = $new_instance_post_type;
 				if ( post_type_supports( $new_instance_post_type, 'author' ) ) {
 					$options['instances'][ $save_instances_lap ]['author'] = 0;
 				}
-				$options['instances'][ $save_instances_lap ]['singular'] = '1';
+				$options['instances'][ $save_instances_lap ]['singular']     = '1';
 				$options['instances'][ $save_instances_lap ]['at_beginning'] = '';
-				$options['instances'][ $save_instances_lap ]['at_end'] = '';
+				$options['instances'][ $save_instances_lap ]['at_end']       = '';
+				$options['instances'][ $save_instances_lap ]['is_new']       = true;
 			}
 		}
-		update_option( $option_name . '_' . wp_get_current_user()->user_login, $options );
-		update_option( $option_name,  $options );
+		update_option( $option_name, $options );
 	}
 }
-
+/**
+ * Displays the options page
+ */
 function bnmng_above_and_below_display_options() {
 
 	if ( ! current_user_can( 'manage_options' ) ) {
-		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
+		wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'bnmng-above-and-below' ) );
 	}
 
-	$option_name      = 'bnmng_above_and_below';
+	$option_name = 'bnmng_above_and_below';
 
 	$intro  = '<p>';
 	$intro .= __( 'This plugin adds text to the beginning and end of a post when the post is displayed. It does not alter the post in the database. ', 'bnmng-above-and-below' );
@@ -205,15 +207,15 @@ function bnmng_above_and_below_display_options() {
 	$singular_help   .= __( "This option won't be relavant for all post types.  ", 'bnmng-above-and-below' );
 	$singular_options = [
 		[
-			'value' => '1',
+			'value' => 1,
 			'name'  => __( 'Single Only', 'bnmng-above-and-below' ),
 		],
 		[
-			'value' => '2',
+			'value' => 2,
 			'name'  => __( 'List Only', 'bnmng-above-and-below' ),
 		],
 		[
-			'value' => '0',
+			'value' => 0,
 			'name'  => __( 'Single or List', 'bnmng-above-and-below' ),
 		],
 	];
@@ -224,8 +226,10 @@ function bnmng_above_and_below_display_options() {
 	$author_help            = __( 'The author of posts to have the text added.', 'bnmng-above-and-below' );
 	$above_label            = __( 'Add Above Post Content', 'bnmng-above-and-below' );
 	$above_help             = __( 'The text to add above the content.  Tags opened above content can be closed below.', 'bnmng-above-and-below' );
+	$above_help            .= __( 'If more than one instance applies to a post, the above texts are added in order of instance.', 'bnmng-above-and-below' );
 	$below_label            = __( 'Add Below Post Content', 'bnmng-above-and-below' );
 	$below_help             = __( 'The text to add at below the content. ', 'bnmng-above-and-below' );
+	$below_help            .= __( 'If more than one instance applies to a post, the below texts are added in reverse order of instance.', 'bnmng-above-and-below' );
 	$wpautop_label          = __( 'Auto &lt;p>', 'bnmng-above-and-below' );
 	$wpautop_help           = __( 'Add paragraphs and breaks based on end-of-lines', 'bnmng-above-and-below' );
 	$new_instance_label     = __( 'Add a new instance', 'bnmng-above-and-below' );
@@ -258,6 +262,9 @@ function bnmng_above_and_below_display_options() {
 			$available_post_types[] = $options['instances'][ $saved_instances_lap ]['post_type'];
 		}
 		echo '    <div class="instance_wrapper">', "\n";
+		if ( $options['instances'][ $saved_instances_lap ]['is_new'] ) {
+			echo '<span id="span_new"> (new) </span>';	
+		}
 		echo '      <div class="instance_header">', "\n";
 		echo '       <div class="instance_label">', "\n";
 		echo '         ', sprintf( $instance_label, ( $saved_instances_lap + 1 ) ), "\n";
@@ -290,8 +297,8 @@ function bnmng_above_and_below_display_options() {
 		echo '                <select id="', sprintf( $controlid_pat, $saved_instances_lap, 'singular' ),  '" name="', sprintf( $controlname_pat, $saved_instances_lap, 'singular' ), '">', "\n";
 		foreach ( $singular_options AS $singular_option ) {
 			echo '                  <option value="' . $singular_option['value'] . '"';
-			if ( $singular_option['  value']  === $options['instances'][ $saved_instances_lap ]['singular'] ) {
-				echo '   selected="selected" ';
+			if ( $singular_option['value'] === $options['instances'][ $saved_instances_lap ]['singular'] ) {
+				echo ' selected="selected" ';
 			}
 			echo '   >', $singular_option['name'], '</option>', "\n";
 		}
@@ -336,13 +343,13 @@ function bnmng_above_and_below_display_options() {
 		echo '                <select id="', sprintf( $controlid_pat, $saved_instances_lap, 'author' ), '" name="', sprintf( $controlname_pat, $saved_instances_lap, 'author' ), '" >', "\n";
 		echo '                  <option value="0"';
 		if ( 0 === $options['instances'][ $saved_instances_lap ]['author'] ) {
-			echo '   selected="selected" ';
+			echo ' selected="selected" ';
 		}
 		echo '  >[any author]</option>', "\n";
 		foreach ( $all_authors as $author ) {
 			echo '                <option value="', $author->ID, '"';
 			if ( $author->ID === $options['instances'][ $saved_instances_lap ]['author'] ) {
-				echo '      selected="selected"';
+				echo ' selected="selected"';
 			}
 			echo '      >', $author->display_name, '</option>', "\n";
 		}
@@ -378,7 +385,7 @@ function bnmng_above_and_below_display_options() {
 		echo '              <div>', "\n";
 		echo '                <input type="checkbox" id="', sprintf( $controlid_pat, $saved_instances_lap, 'wpautop' ), '" name="', sprintf( $controlname_pat, $saved_instances_lap, 'wpautop' ), '" ' ;
 		if ( $options['instances'][ $saved_instances_lap ]['wpautop'] ) {
-			echo '   checked="checked" ';
+			echo ' checked="checked" ';
 		}
 		echo '  >', "\n";
 		echo '              </div>', "\n";
@@ -586,6 +593,7 @@ function bnmng_admin_above_and_below_script() {
 	document.getElementById( "bnmng_above_and_below_new_post_type").addEventListener( "keydown", function() { 
 		document.getElementById( "bnmng_above_and_below_new_instance_post_type_new" ).checked=true;
 	} ) ;
+	document.getElementById( "span_new" ).scrollIntoView();
 </script>
 	<?php
 }
