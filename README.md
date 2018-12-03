@@ -1,4 +1,4 @@
-=== Above and Below ===
+# Above and Below #
 Contributors: bnmng
 Tags: text, content, 
 Requires at least: 4.0
@@ -8,7 +8,7 @@ License: GPLv2 or later
 
 Above and Below allows you to add content to be displayed above and below post content at display time.  
 
-== Description ==
+## Description ##
 
 Above and Below is a plugin for WordPress that you can use to add text - including HTML and shortcode- to the beginning and end of posts' content at display time.  
 The content is not altered in the database.  
@@ -17,13 +17,13 @@ You can have different text for different posts. You can select posts to have te
 
 You can also select pages and custom post types, although not all custom post types will work.
 
-== Installation ==
+## Installation ##
 
 Upload the plugin directory to your blog and activate it using your plugins menu
 
-== Help ==
+## Help ##
 
-=== Create a New Instance ===
+# Create a New Instance #
 
 An instance is a set of options which define the posts to which you want to add text and the text that you want to add.
 
@@ -34,8 +34,8 @@ Once you have selected a post type, click "Save Changes".  A new form will appea
 
 Fill out the criterea for selecting the posts to which you want to add text.  Also c
 
-== Changelog ==
+## Changelog ##
 
-= 1.0 =
+### 1.0 ###
 
 Initial Release
