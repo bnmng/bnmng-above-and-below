@@ -1,5 +1,5 @@
 <?php
-/**
+/*
 Plugin Name: Above and Below
 Plugin URL: http://aboveandbelow.bnmng.com
 Description: Add text to displayed above and below post content
@@ -40,15 +40,15 @@ function bnmng_above_and_below( $content ) {
 		$taxonomy_names = get_post_taxonomies( $post );
 
 		foreach ( $taxonomy_names as $taxonomy_name ) {
-			$opt_term_ids = $option['taxonomies'][ $taxonomy_name ];
-			if ( count( $opt_term_ids ) ) {
+			$option_term_ids = $option['taxonomies'][ $taxonomy_name ];
+			if ( count( $option_term_ids ) ) {
 				$post_terms = get_the_terms( $post, $taxonomy_name );
 				if ( ! count( $post_terms ) ) {
 					continue;
 				} else {
 					$post_term_ids = array_column( $post_terms, 'term_id' );
-					foreach ( $opt_term_ids as $opt_term_id ) {
-						if ( ! in_array( $opt_term_id, $post_term_ids, true ) ) {
+					foreach ( $option_term_ids as $option_term_id ) {
+						if ( ! in_array( $option_term_id, $post_term_ids, true ) ) {
 							continue 3;
 						}
 					}
@@ -58,7 +58,7 @@ function bnmng_above_and_below( $content ) {
 
 		if ( post_type_supports( $post->post_type, 'author' ) ) {
 			if ( $option['author'] > 0 ) {
-				if ( ! ( get_the_author_meta( 'ID' ) === $option['author'] ) ) {
+				if ( get_the_author_meta( 'ID' ) != $option['author'] ) {
 					continue;
 				}
 			}
@@ -160,7 +160,7 @@ function bnmng_above_and_below_save_options() {
 					$new_instance_post_type = sanitize_key( wp_unslash( $_POST[ $option_name ]['new_post_type'] ) );
 				}
 			} else {
-				$new_instance_post_type = sanitize_key( sanitize_key( $_POST[ $option_name ]['new_instance_post_type'] ) );
+				$new_instance_post_type = sanitize_key( $_POST[ $option_name ]['new_instance_post_type'] );
 			}
 			if ( $new_instance_post_type > '' ) {
 				$options['instances'][ $save_instances_lap ]['post_type'] = $new_instance_post_type;
@@ -200,7 +200,7 @@ function bnmng_above_and_below_display_options() {
 	$down_label       = __( 'Down', 'bnmng-above-and-below' );
 	$delete_label     = __( 'Delete', 'bnmng-above-and-below' );
 	$post_type_label  = __( 'Post Type', 'bnmng-above-and-below' );
-	$post_type_help   = __( 'To add a new instance, select the appropriate post type and click "Save Changes"  ', 'bnmng-above-and-below' );
+	$post_type_help   = __( 'To add a new instance, select the appropriate post type and click "Save Changes" ', 'bnmng-above-and-below' );
 	$post_type_help  .= __( 'This plugin should work as expected for posts and pages, and may work for some types of posts that you add. ', 'bnmng-above-and-below' );
 	$singular_label   = __( 'Singular/List View', 'bnmng-above-and-below' );
 	$singular_help    = __( 'Whether to display the added text while the post is in singular view only, list view only, or either.  ', 'bnmng-above-and-below' );
@@ -249,207 +249,205 @@ function bnmng_above_and_below_display_options() {
 
 	echo "\n";
 	echo '<div class = "wrap">', "\n";
-	echo '  <div class="bnmng-above-and-below-intro">', $intro, '</div>', "\n";
-	echo '  <form method = "POST" action="">', "\n";
-	echo '   ', wp_nonce_field( 'bnmng_above_and_below', 'bnmng_above_and_below_nonce', true, false ), "\n";
+	echo '	<div class="bnmng-above-and-below-intro">', $intro, '</div>', "\n";
+	echo '	<form method = "POST" action="">', "\n";
+	echo '		', wp_nonce_field( 'bnmng_above_and_below', 'bnmng_above_and_below_nonce', true, false ), "\n";
 
 	$options = get_option( $option_name );
 
-	$saved_instances_sum = count( $options['instances'] ) ;
+	$saved_instances_sum = count( $options['instances'] );
 
 	for ( $saved_instances_lap = 0; $saved_instances_lap < $saved_instances_sum; $saved_instances_lap++ ) {
 		if ( ! in_array( $options['instances'][ $saved_instances_lap ]['post_type'], $available_post_types, true ) ) {
 			$available_post_types[] = $options['instances'][ $saved_instances_lap ]['post_type'];
 		}
-		echo '    <div class="instance_wrapper">', "\n";
+		echo '		<div class="instance_wrapper">', "\n";
 		if ( $options['instances'][ $saved_instances_lap ]['is_new'] ) {
 			echo '<span id="span_new"> (new) </span>';	
 		}
-		echo '      <div class="instance_header">', "\n";
-		echo '       <div class="instance_label">', "\n";
-		echo '         ', sprintf( $instance_label, ( $saved_instances_lap + 1 ) ), "\n";
-		echo '       </div>', "\n";
-		echo '       <div class="instance_buttons">', "\n";
+		echo '			<div class="instance_header">', "\n";
+		echo '				<div class="instance_label">', "\n";
+		echo '					', sprintf( $instance_label, ( $saved_instances_lap + 1 ) ), "\n";
+		echo '				</div>', "\n";
+		echo '				<div class="instance_buttons">', "\n";
 		if ( $saved_instances_lap > 0 ) {
-			echo '        <button type="button" name="move_up" data-key="' . $saved_instances_lap . '" >', $up_label, '</button>', "\n";
+			echo '					<button type="button" name="move_up" data-key="' . $saved_instances_lap . '" >', $up_label, '</button>', "\n";
 		}
 		if ( $saved_instances_lap < ( $saved_instances_sum - 1 ) ) {
-			echo '        <button type="button" name="move_down" data-key="' . $saved_instances_lap . '" >', $down_label, '</button>', "\n";
+			echo '					<button type="button" name="move_down" data-key="' . $saved_instances_lap . '" >', $down_label, '</button>', "\n";
 		}
-		echo '        <button type="button" name="delete" data-key="' . $saved_instances_lap . '" >', $delete_label, '</button>', "\n";
-		echo '      </div>', "\n";
-		echo '      <div id="div_instance_', $saved_instances_lap, '">', "\n";
-		echo '        <table class="form-table bnmng-above-and-below">', "\n";
-		echo '          <tr>', "\n";
-		echo '            <th>', $post_type_label, '</th>', "\n";
-		echo '            <td>', "\n";
-		echo '              <div>';
-		echo '      		  ', $options['instances'][ $saved_instances_lap ]['post_type'], "\n";
-		echo '      		  ', '<input type="hidden" id="', sprintf( $controlid_pat, $saved_instances_lap, 'post_type' ), '" name="', sprintf( $controlname_pat, $saved_instances_lap, 'post_type' ), '" value="', $options['instances'][ $saved_instances_lap ]['post_type'], '">',  "\n";
-		echo '              </div>', "\n";
-		echo '            </td>', "\n";
-		echo '          </tr>', "\n";
+		echo '					<button type="button" name="delete" data-key="' . $saved_instances_lap . '" >', $delete_label, '</button>', "\n";
+		echo '				</div>', "\n";
+		echo '			<div id="div_instance_', $saved_instances_lap, '">', "\n";
+		echo '				<table class="form-table bnmng-above-and-below">', "\n";
+		echo '					<tr>', "\n";
+		echo '						<th>', $post_type_label, '</th>', "\n";
+		echo '						<td>', "\n";
+		echo '							<div>';
+		echo '								', $options['instances'][ $saved_instances_lap ]['post_type'], "\n";
+		echo '								<input type="hidden" id="', sprintf( $controlid_pat, $saved_instances_lap, 'post_type' ), '" name="', sprintf( $controlname_pat, $saved_instances_lap, 'post_type' ), '" value="', $options['instances'][ $saved_instances_lap ]['post_type'], '">',  "\n";
+		echo '							</div>', "\n";
+		echo '						</td>', "\n";
+		echo '					</tr>', "\n";
 
-		echo '          <tr>', "\n";
-		echo '            <th>', $singular_label, '</th>', "\n";
-		echo '            <td>', "\n";
-		echo '              <div>', "\n";
-		echo '                <select id="', sprintf( $controlid_pat, $saved_instances_lap, 'singular' ),  '" name="', sprintf( $controlname_pat, $saved_instances_lap, 'singular' ), '">', "\n";
-		foreach ( $singular_options AS $singular_option ) {
-			echo '                  <option value="' . $singular_option['value'] . '"';
+		echo '					<tr>', "\n";
+		echo '						<th>', $singular_label, '</th>', "\n";
+		echo '						<td>', "\n";
+		echo '							<div>', "\n";
+		echo '								<select id="', sprintf( $controlid_pat, $saved_instances_lap, 'singular' ),  '" name="', sprintf( $controlname_pat, $saved_instances_lap, 'singular' ), '">', "\n";
+		foreach ( $singular_options as $singular_option ) {
+			echo '								<option value="' . $singular_option['value'] . '"';
 			if ( $singular_option['value'] === $options['instances'][ $saved_instances_lap ]['singular'] ) {
-				echo ' selected="selected" ';
+				echo 'selected="selected" ';
 			}
-			echo '   >', $singular_option['name'], '</option>', "\n";
+			echo '>', $singular_option['name'], '</option>', "\n";
 		}
-		echo '                </select>', "\n";
-		echo '              </div>', "\n";
-		echo '              <div class="bnmng-above-and-below-help">', $singular_help, '</div>', "\n";
-		echo '            </td>', "\n";
-		echo '          </tr>', "\n";
+		echo '								</select>', "\n";
+		echo '							</div>', "\n";
+		echo '							<div class="bnmng-above-and-below-help">', $singular_help, '</div>', "\n";
+		echo '						</td>', "\n";
+		echo '					</tr>', "\n";
 
 		if ( ! isset( $taxonomies[ $options['instances'][ $saved_instances_lap ]['post_type'] ] ) ) {
-			$taxonomies[ $options['instances'][ $saved_instances_lap ]['post_type'] ] = get_object_taxonomies( $options['instances'][ $saved_instances_lap ]['post_type'], 'objects' ) ;
+			$taxonomies[ $options['instances'][ $saved_instances_lap ]['post_type'] ] = get_object_taxonomies( $options['instances'][ $saved_instances_lap ]['post_type'], 'objects' );
 			foreach ( $taxonomies[ $options['instances'][ $saved_instances_lap ]['post_type'] ] as $taxonomy ) {
 				$terms[ $taxonomy->name ]  = bnmng_assign_taxonomy_lineage( get_terms( [ 'taxonomy' => $taxonomy->name, 'hide_empty' => 0 ] ) );
 			}
 		}
-		foreach ( $taxonomies[ $options['instances'][ $saved_instances_lap ]['post_type'] ] AS $taxonomy ) {
+		foreach ( $taxonomies[ $options['instances'][ $saved_instances_lap ]['post_type'] ] as $taxonomy ) {
 			if ( count( $terms[ $taxonomy->name ] ) ) {
-				echo '          <tr>', "\n";
-				echo '            <th>', $taxonomy->label, '</th>', "\n";
-				echo '            <td>', "\n";
-				echo '              <div>', "\n";
-				echo '                <select id="', sprintf( $multicontrolid_pat, $saved_instances_lap, 'taxonomies',  $taxonomy->name ), '" name="', sprintf( $multicontrolname_pat, $saved_instances_lap, 'taxonomies',  $taxonomy->name ), '" multiple="multiple" size="',  min( count( $terms[ $taxonomy->name ] ), 3 ),  '">', "\n";
+				echo '					<tr>', "\n";
+				echo '						<th>', $taxonomy->label, '</th>', "\n";
+				echo '						<td>', "\n";
+				echo '							<div>', "\n";
+				echo '								<select id="', sprintf( $multicontrolid_pat, $saved_instances_lap, 'taxonomies',  $taxonomy->name ), '" name="', sprintf( $multicontrolname_pat, $saved_instances_lap, 'taxonomies',  $taxonomy->name ), '" multiple="multiple" size="',  min( count( $terms[ $taxonomy->name ] ), 3 ),  '">', "\n";
 				foreach ( $terms[ $taxonomy->name ] as $term ) {
-					echo '                  <option value="', $term->term_id , '"';
+					echo '									<option value="', $term->term_id , '"';
 					if ( in_array( $term->term_id, $options['instances'][ $saved_instances_lap ]['taxonomies'][ $taxonomy->name ], true ) ) {
-						echo '   selected="selected" ';
+						echo 'selected="selected" ';
 					}
-					echo '  >', $term->prefix . $term->name, '</option>', "\n";;
+					echo '>', $term->prefix . $term->name, '</option>', "\n";;
 				}
-				echo '                </select>', "\n";
-				echo '              </div>', "\n";
-				echo '              <div class="bnmng-above-and-below-help">', sprintf( $taxonomies_help, $taxonomy->label ), '</div>', "\n";
-				echo '            </td>', "\n";
-				echo '          </tr>', "\n";
+				echo '								</select>', "\n";
+				echo '							</div>', "\n";
+				echo '							<div class="bnmng-above-and-below-help">', sprintf( $taxonomies_help, $taxonomy->label ), '</div>', "\n";
+				echo '						</td>', "\n";
+				echo '					</tr>', "\n";
 			}
 		}
 
-		echo '          <tr>', "\n";
-		echo '            <th>', $author_label, '</th>', "\n";
-		echo '            <td>', "\n";
-		echo '              <div>', "\n";
-		echo '                <select id="', sprintf( $controlid_pat, $saved_instances_lap, 'author' ), '" name="', sprintf( $controlname_pat, $saved_instances_lap, 'author' ), '" >', "\n";
-		echo '                  <option value="0"';
+		echo '					<tr>', "\n";
+		echo '						<th>', $author_label, '</th>', "\n";
+		echo '						<td>', "\n";
+		echo '							<div>', "\n";
+		echo '								<select id="', sprintf( $controlid_pat, $saved_instances_lap, 'author' ), '" name="', sprintf( $controlname_pat, $saved_instances_lap, 'author' ), '" >', "\n";
+		echo '									<option value="0"';
 		if ( 0 === $options['instances'][ $saved_instances_lap ]['author'] ) {
-			echo ' selected="selected" ';
+			echo 'selected="selected" ';
 		}
-		echo '  >[any author]</option>', "\n";
+		echo '>[any author]</option>', "\n";
 		foreach ( $all_authors as $author ) {
-			echo '                <option value="', $author->ID, '"';
+			echo '									<option value="', $author->ID, '"';
 			if ( $author->ID === $options['instances'][ $saved_instances_lap ]['author'] ) {
-				echo ' selected="selected"';
+				echo 'selected="selected"';
 			}
-			echo '      >', $author->display_name, '</option>', "\n";
+			echo '>', $author->display_name, '</option>', "\n";
 		}
-		echo '                </select>', "\n";
-		echo '              </div>', "\n";
-		echo '              <div class="bnmng-above-and-below-help">', $author_help, '</div>', "\n";
-		echo '            </td>', "\n";
-		echo '          </tr>', "\n";
+		echo '								</select>', "\n";
+		echo '							</div>', "\n";
+		echo '							<div class="bnmng-above-and-below-help">', $author_help, '</div>', "\n";
+		echo '						</td>', "\n";
+		echo '					</tr>', "\n";
 
-		echo '          <tr>', "\n";
-		echo '            <th>', $above_label, '</th>', "\n";
-		echo '            <td>', "\n";
-		echo '              <div>', "\n";
-		echo '                <textarea id="', sprintf( $controlid_pat, $saved_instances_lap, 'at_beginning' ), '" name="', sprintf( $controlname_pat, $saved_instances_lap, 'at_beginning' ), '">', stripslashes( $options['instances'][ $saved_instances_lap ]['at_beginning'] ), '</textarea>', "\n";
-		echo '               </div>', "\n";
-		echo '              <div class="bnmng-above-and-below-help">', $above_help, '</div>', "\n";
-		echo '            </td>', "\n";
-		echo '          </tr>', "\n";
+		echo '					<tr>', "\n";
+		echo '						<th>', $above_label, '</th>', "\n";
+		echo '						<td>', "\n";
+		echo '							<div>', "\n";
+		echo '								<textarea id="', sprintf( $controlid_pat, $saved_instances_lap, 'at_beginning' ), '" name="', sprintf( $controlname_pat, $saved_instances_lap, 'at_beginning' ), '">', stripslashes( $options['instances'][ $saved_instances_lap ]['at_beginning'] ), '</textarea>', "\n";
+		echo '							</div>', "\n";
+		echo '							<div class="bnmng-above-and-below-help">', $above_help, '</div>', "\n";
+		echo '						</td>', "\n";
+		echo '					</tr>', "\n";
 
-		echo '          <tr>', "\n";
-		echo '            <th>', $below_label, '</th>', "\n";
-		echo '            <td>', "\n";
-		echo '              <div>', "\n";
-		echo '                <textarea id="', sprintf( $controlid_pat, $saved_instances_lap, 'at_end' ), '" name="', sprintf( $controlname_pat, $saved_instances_lap, 'at_end' ), '">', stripslashes( $options['instances'][ $saved_instances_lap ]['at_end'] ), '</textarea>', "\n";
-		echo '              </div>', "\n";
-		echo '              <div class="bnmng-above-and-below-help">', $below_help, '</div>', "\n";
-		echo '            </td>', "\n";
-		echo '          </tr>', "\n";
+		echo '					<tr>', "\n";
+		echo '						<th>', $below_label, '</th>', "\n";
+		echo '						<td>', "\n";
+		echo '							<div>', "\n";
+		echo '								<textarea id="', sprintf( $controlid_pat, $saved_instances_lap, 'at_end' ), '" name="', sprintf( $controlname_pat, $saved_instances_lap, 'at_end' ), '">', stripslashes( $options['instances'][ $saved_instances_lap ]['at_end'] ), '</textarea>', "\n";
+		echo '							</div>', "\n";
+		echo '							<div class="bnmng-above-and-below-help">', $below_help, '</div>', "\n";
+		echo '						</td>', "\n";
+		echo '					</tr>', "\n";
 
-		echo '          <tr>', "\n";
-		echo '            <th>', $wpautop_label, '</th>', "\n";
-		echo '            <td>', "\n";
-		echo '              <div>', "\n";
-		echo '                <input type="checkbox" id="', sprintf( $controlid_pat, $saved_instances_lap, 'wpautop' ), '" name="', sprintf( $controlname_pat, $saved_instances_lap, 'wpautop' ), '" ' ;
+		echo '					<tr>', "\n";
+		echo '						<th>', $wpautop_label, '</th>', "\n";
+		echo '						<td>', "\n";
+		echo '							<div>', "\n";
+		echo '								<input type="checkbox" id="', sprintf( $controlid_pat, $saved_instances_lap, 'wpautop' ), '" name="', sprintf( $controlname_pat, $saved_instances_lap, 'wpautop' ), '" ';
 		if ( $options['instances'][ $saved_instances_lap ]['wpautop'] ) {
-			echo ' checked="checked" ';
+			echo 'checked="checked" ';
 		}
-		echo '  >', "\n";
-		echo '              </div>', "\n";
-		echo '              <div class="bnmng-above-and-below-help">', $wpautop_help, '</div>', "\n";
-		echo '            </td>', "\n";
-		echo '          </tr>', "\n";
+		echo '>', "\n";
+		echo '							</div>', "\n";
+		echo '							<div class="bnmng-above-and-below-help">', $wpautop_help, '</div>', "\n";
+		echo '						</td>', "\n";
+		echo '					</tr>', "\n";
 
 
-		echo '        </table>', "\n";
-		echo '      </div>', "\n";
-		echo '    </div>', "\n";
+		echo '				</table>', "\n";
+		echo '			</div>', "\n";
+		echo '		</div>', "\n";
 	}
 
 	/*   'new instance' form */
-	echo '    <div id="div_add_instance">', "\n";
-	echo '      <table class="form-table bnmng-above-and-below">', "\n";
-	echo '       <tr>', "\n";
-	echo '         <th>Add a New Instance</th>', "\n";
-	echo '         <td>', "\n";
-	echo '           <table class="form-table bnmng-above-and-below">', "\n";
-	echo '             <tr>', "\n";
-	echo '               <td>none</td>', "\n";
-	echo '               <td>', "\n";
-	echo '                  <input type="radio" id="', sprintf( $global_controlid_pat, 'new_instance_post_type_none' ), '" name="', sprintf( $global_controlname_pat, 'new_instance_post_type' ), '" value=""';
+	echo '		<div id="div_add_instance">', "\n";
+	echo '			<table class="form-table bnmng-above-and-below">', "\n";
+	echo '				<tr>', "\n";
+	echo '					<th>Add a New Instance</th>', "\n";
+	echo '					<td>', "\n";
+	echo '						<table class="form-table bnmng-above-and-below">', "\n";
+	echo '							<tr>', "\n";
+	echo '								<td>none</td>', "\n";
+	echo '								<td>', "\n";
+	echo '									<input type="radio" id="', sprintf( $global_controlid_pat, 'new_instance_post_type_none' ), '" name="', sprintf( $global_controlname_pat, 'new_instance_post_type' ), '" value=""';
 	if ( $saved_instances_lap > 0 ) {
-		echo ' checked="checked" ';
+		echo 'checked="checked" ';
 	}
 	echo '>', "\n";
-	echo '               </td>', "\n";
-	echo '               <td>', __( "Don't add", 'bnmng-above-and-below' ), '</td>', "\n";
-	echo '             </tr>', "\n";
+	echo '								</td>', "\n";
+	echo '								<td>', __( "Don't add", 'bnmng-above-and-below' ), '</td>', "\n";
+	echo '							</tr>', "\n";
 	foreach ( $available_post_types as $post_type ) {
-		echo '             <tr>', "\n";
-		echo '               <td>', $post_type, '</td>', "\n";
-		echo '               <td>', "\n";
-		echo '                 <input type="radio" id="', sprintf( $global_controlid_pat, 'new_instance_post_type_', $post_type ), '" name="' . sprintf( $global_controlname_pat, 'new_instance_post_type' ), '" value="', $post_type,  '"';
+		echo '							<tr>', "\n";
+		echo '								<td>', $post_type, '</td>', "\n";
+		echo '								<td>', "\n";
+		echo '									<input type="radio" id="', sprintf( $global_controlid_pat, 'new_instance_post_type_', $post_type ), '" name="' . sprintf( $global_controlname_pat, 'new_instance_post_type' ), '" value="', $post_type,  '"';
 		if ( ! ( 0 < $saved_instances_lap ) && 'post' === $post_type) {
-			echo ' checked="checked" ';
+			echo 'checked="checked" ';
 		}
 		echo '>', "\n";
-		echo '               </td>', "\n";
-		echo '               <td></td>',  "\n";
-		echo '             </tr>', "\n";
+		echo '								</td>', "\n";
+		echo '								<td></td>',  "\n";
+		echo '							</tr>', "\n";
 	}
-	echo '             <tr>', "\n";
-	echo '               <td>new</td>', "\n";
-	echo '               <td>', "\n";
-	echo '                 <input type="radio" id="', sprintf( $global_controlid_pat, 'new_instance_post_type_new' ), '" name="', sprintf( $global_controlname_pat, 'new_instance_post_type' ), '" value="+">', "\n";
-	echo '               </td>', "\n";
-	echo '               <td>', "\n";
-	echo '                 <input id="' . sprintf( $global_controlid_pat, 'new_post_type' ), '" name="', sprintf( $global_controlname_pat, 'new_post_type' ), '">', "\n";
-	echo '               </td>', "\n";
-	echo '             </tr>', "\n";
-	echo '           </table>', "\n";
-	echo '           <div class="bnmng-above-and-below-help">', $post_type_help, '</div>', "\n";
-	echo '         </td>', "\n";
-	echo '       </tr>', "\n";
-	echo '      </table>', "\n";
-	echo '    </div>', "\n";
+	echo '							<tr>', "\n";
+	echo '								<td>new</td>', "\n";
+	echo '								<td>', "\n";
+	echo '									<input type="radio" id="', sprintf( $global_controlid_pat, 'new_instance_post_type_new' ), '" name="', sprintf( $global_controlname_pat, 'new_instance_post_type' ), '" value="+">', "\n";
+	echo '								</td>', "\n";
+	echo '								<td>', "\n";
+	echo '									<input id="' . sprintf( $global_controlid_pat, 'new_post_type' ), '" name="', sprintf( $global_controlname_pat, 'new_post_type' ), '">', "\n";
+	echo '								</td>', "\n";
+	echo '							</tr>', "\n";
+	echo '						</table>', "\n";
+	echo '						<div class="bnmng-above-and-below-help">', $post_type_help, '</div>', "\n";
+	echo '					</td>', "\n";
+	echo '				</tr>', "\n";
+	echo '			</table>', "\n";
+	echo '		</div>', "\n";
 
-	echo '    <div id="div_submit">', "\n";
-	echo '      ', get_submit_button(), "\n";
-	echo '    </div>', "\n";
-	echo '  </form>', "\n";
+	echo '		<div id="div_submit">', get_submit_button(), '</div>', "\n";
+	echo '	</form>', "\n";
 	echo '</div>', "\n";
 }
 
@@ -472,7 +470,7 @@ function bnmng_admin_above_and_below_style() {
 		padding: 0 1px .5px 1px;
 	}
 	table.bnmng-above-and-below textarea {
-		width:100%;
+		width: 100%;
 	}
 </style>
 	<?php
@@ -532,7 +530,7 @@ function bnmng_admin_above_and_below_script() {
 		var thisDiv = document.getElementById( "div_instance_" + key );
 		var thatDiv = document.getElementById( "div_instance_" + ( key + 1 ) );
 
-		while ( thatDiv !== null ) {
+		while ( null !== thatDiv ) {
 			theseChildren = thisDiv.children;
 			for ( var i = 0; i < theseChildren.length; i++ ) {
 				theseChildren[ i ].remove();
@@ -588,11 +586,11 @@ function bnmng_admin_above_and_below_script() {
 
 	document.getElementById( "bnmng_above_and_below_new_post_type").addEventListener( "click", function() {
 		document.getElementById( "bnmng_above_and_below_new_instance_post_type_new" ).checked=true;
-	} ) ; 
+	} );
 
-	document.getElementById( "bnmng_above_and_below_new_post_type").addEventListener( "keydown", function() { 
+	document.getElementById( "bnmng_above_and_below_new_post_type").addEventListener( "keydown", function() {
 		document.getElementById( "bnmng_above_and_below_new_instance_post_type_new" ).checked=true;
-	} ) ;
+	} );
 	document.getElementById( "span_new" ).scrollIntoView();
 </script>
 	<?php
@@ -667,8 +665,8 @@ if ( ! function_exists( 'bnmng_echo' ) ) {
 function bnmng_echo ( ) {
 	echo '<pre>';
 	$args = func_get_args();
-	foreach( $args as $arg ) {
-		if( is_array( $arg ) ) {
+	foreach ( $args as $arg ) {
+		if ( is_array( $arg ) ) {
 			print_r( $arg );
 		} else {
 			echo( $arg );
